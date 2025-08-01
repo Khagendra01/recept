@@ -29,7 +29,7 @@ from app.schemas.bank_transaction import (
 class BankTransactionService:
     def __init__(self, db: Session):
         self.db = db
-    
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
     def create_bank_transaction(self, transaction_create: BankTransactionCreate) -> BankTransaction:
         """Create new bank transaction"""
         db_transaction = BankTransaction(**transaction_create.model_dump())

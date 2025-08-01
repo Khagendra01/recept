@@ -15,6 +15,7 @@ from app.services.email_service import EmailService
 class OpenAIService:
     def __init__(self, db: Session):
         self.db = db
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.transaction_service = TransactionService(db)
         self.email_service = EmailService(db)
     
