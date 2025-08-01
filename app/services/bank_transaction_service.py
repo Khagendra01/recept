@@ -1555,60 +1555,110 @@ Response format: Just the number (e.g., 0.85)
             return 0.5  # Default if AI fails
 
     def generate_sample_bank_transactions(self, user_id: int) -> CSVUploadResponse:
-        """Generate sample ledger transactions for demonstration"""
+        """Generate sample bank transactions for demonstration"""
         batch_id = str(uuid.uuid4())
         
-        # Sample ledger transactions data (these are Transaction model, not BankTransaction)
-        sample_transactions = [
+        # Clear existing bank transactions for this user to avoid duplication
+        self.db.query(BankTransaction).filter(BankTransaction.user_id == user_id).delete()
+        self.db.commit()
+        
+        # Sample bank transactions data (BankTransaction model)
+        sample_bank_transactions = [
             {
                 "user_id": user_id,
-                "merchant_name": "SAFEWAY",
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 15),
+                "description": "SAFEWAY GROCERY PURCHASE",
                 "amount": 45.67,
-                "currency": "USD",
-                "transaction_date": datetime(2024, 1, 15),
+                "balance": 1234.56,
+                "transaction_type": "debit",
+                "reference_number": "123456",
                 "category": "food",
-                "description": "Grocery purchase at Safeway",
-                "is_processed": True
+                "merchant_name": "SAFEWAY"
             },
             {
                 "user_id": user_id,
-                "merchant_name": "SHELL",
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 16),
+                "description": "SALARY DEPOSIT",
+                "amount": 2500.00,
+                "balance": 3734.56,
+                "transaction_type": "credit",
+                "reference_number": None,
+                "category": "income",
+                "merchant_name": "EMPLOYER CORP"
+            },
+            {
+                "user_id": user_id,
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 17),
+                "description": "SHELL GAS STATION",
                 "amount": 35.89,
-                "currency": "USD",
-                "transaction_date": datetime(2024, 1, 17),
+                "balance": 3698.67,
+                "transaction_type": "debit",
+                "reference_number": "789012",
                 "category": "gas",
-                "description": "Gas station purchase",
-                "is_processed": True
+                "merchant_name": "SHELL"
             },
             {
                 "user_id": user_id,
-                "merchant_name": "AMAZON",
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 18),
+                "description": "AMAZON.COM ONLINE PURCHASE",
                 "amount": 89.99,
-                "currency": "USD",
-                "transaction_date": datetime(2024, 1, 18),
+                "balance": 3608.68,
+                "transaction_type": "debit",
+                "reference_number": "345678",
                 "category": "shopping",
-                "description": "Online purchase from Amazon",
-                "is_processed": True
+                "merchant_name": "AMAZON"
             },
             {
                 "user_id": user_id,
-                "merchant_name": "CHIPOTLE",
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 19),
+                "description": "CHIPOTLE RESTAURANT",
                 "amount": 67.45,
-                "currency": "USD",
-                "transaction_date": datetime(2024, 1, 19),
+                "balance": 3541.23,
+                "transaction_type": "debit",
+                "reference_number": "901234",
                 "category": "food",
-                "description": "Restaurant dining at Chipotle",
-                "is_processed": True
+                "merchant_name": "CHIPOTLE"
             },
             {
                 "user_id": user_id,
-                "merchant_name": "NETFLIX",
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 20),
+                "description": "NETFLIX SUBSCRIPTION",
                 "amount": 15.99,
-                "currency": "USD",
-                "transaction_date": datetime(2024, 1, 20),
+                "balance": 3525.24,
+                "transaction_type": "debit",
+                "reference_number": "567890",
                 "category": "entertainment",
-                "description": "Netflix subscription payment",
-                "is_processed": True
+                "merchant_name": "NETFLIX"
+            },
+            {
+                "user_id": user_id,
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 21),
+                "description": "CVS PHARMACY PURCHASE",
+                "amount": 23.50,
+                "balance": 3501.74,
+                "transaction_type": "debit",
+                "reference_number": "234567",
+                "category": "healthcare",
+                "merchant_name": "CVS"
+            },
+            {
+                "user_id": user_id,
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 22),
+                "description": "ELECTRIC COMPANY BILL PAYMENT",
+                "amount": 125.00,
+                "balance": 3376.74,
+                "transaction_type": "debit",
+                "reference_number": "890123",
+                "category": "utilities",
+                "merchant_name": "ELECTRIC COMPANY"
             }
         ]
         
@@ -1616,32 +1666,37 @@ Response format: Just the number (e.g., 0.85)
         failed_imports = 0
         errors = []
         
-        # Create ledger transactions from sample data
-        for transaction_data in sample_transactions:
+        # Create bank transactions from sample data
+        for transaction_data in sample_bank_transactions:
             try:
-                # Create ledger transaction (Transaction model)
-                ledger_tx = Transaction(**transaction_data)
-                self.db.add(ledger_tx)
+                # Create bank transaction (BankTransaction model)
+                bank_tx = BankTransaction(**transaction_data)
+                self.db.add(bank_tx)
                 successful_imports += 1
                 
             except Exception as e:
                 failed_imports += 1
-                errors.append(f"Sample transaction error: {str(e)}")
+                errors.append(f"Sample bank transaction error: {str(e)}")
         
         self.db.commit()
         
         return CSVUploadResponse(
             batch_id=batch_id,
-            total_transactions=len(sample_transactions),
+            total_transactions=len(sample_bank_transactions),
             successful_imports=successful_imports,
             failed_imports=failed_imports,
             errors=errors[:10]  # Limit to first 10 errors
         )
 
     def generate_sample_comparison_data(self, user_id: int) -> ComparisonResult:
-        """Generate sample comparison data with 8-10 transactions where 3 should match"""
+        """Generate sample comparison data with distinct ledger and bank transactions where some match"""
         
-        # First, create sample ledger transactions
+        # Clear existing sample data for this user to avoid duplication
+        self.db.query(Transaction).filter(Transaction.user_id == user_id).delete()
+        self.db.query(BankTransaction).filter(BankTransaction.user_id == user_id).delete()
+        self.db.commit()
+        
+        # Create sample ledger transactions (5 transactions)
         sample_ledger_transactions = [
             {
                 "user_id": user_id,
@@ -1700,14 +1755,15 @@ Response format: Just the number (e.g., 0.85)
             ledger_tx = Transaction(**ledger_data)
             self.db.add(ledger_tx)
         
-        # Create sample bank transactions (8 transactions)
+        # Create sample bank transactions (8 transactions) - different from ledger
         batch_id = str(uuid.uuid4())
         sample_bank_transactions = [
+            # These 3 should match with ledger transactions (same amount, date, similar description)
             {
                 "user_id": user_id,
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 15),
-                "description": "GROCERY STORE PURCHASE",
+                "description": "SAFEWAY GROCERY PURCHASE",
                 "amount": 45.67,
                 "balance": 1234.56,
                 "transaction_type": "debit",
@@ -1715,6 +1771,31 @@ Response format: Just the number (e.g., 0.85)
                 "category": "food",
                 "merchant_name": "SAFEWAY"
             },
+            {
+                "user_id": user_id,
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 17),
+                "description": "SHELL GAS STATION",
+                "amount": 35.89,
+                "balance": 3698.67,
+                "transaction_type": "debit",
+                "reference_number": "789012",
+                "category": "gas",
+                "merchant_name": "SHELL"
+            },
+            {
+                "user_id": user_id,
+                "upload_batch_id": batch_id,
+                "date": datetime(2024, 1, 18),
+                "description": "AMAZON.COM ONLINE PURCHASE",
+                "amount": 89.99,
+                "balance": 3608.68,
+                "transaction_type": "debit",
+                "reference_number": "345678",
+                "category": "shopping",
+                "merchant_name": "AMAZON"
+            },
+            # These 5 are bank-only transactions (not in ledger)
             {
                 "user_id": user_id,
                 "upload_batch_id": batch_id,
@@ -1730,32 +1811,8 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 17),
-                "description": "GAS STATION PURCHASE",
-                "amount": 35.89,
-                "balance": 3698.67,
-                "transaction_type": "debit",
-                "reference_number": "789012",
-                "category": "gas",
-                "merchant_name": "SHELL"
-            },
-            {
-                "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 18),
-                "description": "AMAZON ONLINE PURCHASE",
-                "amount": 89.99,
-                "balance": 3608.68,
-                "transaction_type": "debit",
-                "reference_number": "345678",
-                "category": "shopping",
-                "merchant_name": "AMAZON"
-            },
-            {
-                "user_id": user_id,
-                "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 19),
-                "description": "RESTAURANT DINING",
+                "description": "CHIPOTLE RESTAURANT",
                 "amount": 67.45,
                 "balance": 3541.23,
                 "transaction_type": "debit",
@@ -1779,7 +1836,7 @@ Response format: Just the number (e.g., 0.85)
                 "user_id": user_id,
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 21),
-                "description": "PHARMACY PURCHASE",
+                "description": "CVS PHARMACY PURCHASE",
                 "amount": 23.50,
                 "balance": 3501.74,
                 "transaction_type": "debit",
@@ -1791,7 +1848,7 @@ Response format: Just the number (e.g., 0.85)
                 "user_id": user_id,
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 22),
-                "description": "UTILITY BILL PAYMENT",
+                "description": "ELECTRIC COMPANY BILL PAYMENT",
                 "amount": 125.00,
                 "balance": 3376.74,
                 "transaction_type": "debit",
