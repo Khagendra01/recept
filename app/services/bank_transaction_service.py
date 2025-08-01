@@ -29,7 +29,7 @@ from app.schemas.bank_transaction import (
 class BankTransactionService:
     def __init__(self, db: Session):
         self.db = db
-        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)    
     def create_bank_transaction(self, transaction_create: BankTransactionCreate) -> BankTransaction:
         """Create new bank transaction"""
         db_transaction = BankTransaction(**transaction_create.model_dump())
@@ -1563,7 +1563,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "SAFEWAY",
-                "amount": -45.67,
+                "amount": 45.67,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 15),
                 "category": "food",
@@ -1573,7 +1573,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "SHELL",
-                "amount": -35.89,
+                "amount": 35.89,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 17),
                 "category": "gas",
@@ -1583,7 +1583,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "AMAZON",
-                "amount": -89.99,
+                "amount": 89.99,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 18),
                 "category": "shopping",
@@ -1593,7 +1593,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "CHIPOTLE",
-                "amount": -67.45,
+                "amount": 67.45,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 19),
                 "category": "food",
@@ -1603,7 +1603,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "NETFLIX",
-                "amount": -15.99,
+                "amount": 15.99,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 20),
                 "category": "entertainment",
@@ -1646,7 +1646,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "SAFEWAY",
-                "amount": -45.67,
+                "amount": 45.67,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 15),
                 "category": "food",
@@ -1656,7 +1656,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "SHELL",
-                "amount": -35.89,
+                "amount": 35.89,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 17),
                 "category": "gas",
@@ -1666,7 +1666,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "AMAZON",
-                "amount": -89.99,
+                "amount": 89.99,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 18),
                 "category": "shopping",
@@ -1676,7 +1676,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "CHIPOTLE",
-                "amount": -67.45,
+                "amount": 67.45,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 19),
                 "category": "food",
@@ -1686,7 +1686,7 @@ Response format: Just the number (e.g., 0.85)
             {
                 "user_id": user_id,
                 "merchant_name": "NETFLIX",
-                "amount": -15.99,
+                "amount": 15.99,
                 "currency": "USD",
                 "transaction_date": datetime(2024, 1, 20),
                 "category": "entertainment",
@@ -1708,7 +1708,7 @@ Response format: Just the number (e.g., 0.85)
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 15),
                 "description": "GROCERY STORE PURCHASE",
-                "amount": -45.67,
+                "amount": 45.67,
                 "balance": 1234.56,
                 "transaction_type": "debit",
                 "reference_number": "123456",
@@ -1732,7 +1732,7 @@ Response format: Just the number (e.g., 0.85)
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 17),
                 "description": "GAS STATION PURCHASE",
-                "amount": -35.89,
+                "amount": 35.89,
                 "balance": 3698.67,
                 "transaction_type": "debit",
                 "reference_number": "789012",
@@ -1744,7 +1744,7 @@ Response format: Just the number (e.g., 0.85)
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 18),
                 "description": "AMAZON ONLINE PURCHASE",
-                "amount": -89.99,
+                "amount": 89.99,
                 "balance": 3608.68,
                 "transaction_type": "debit",
                 "reference_number": "345678",
@@ -1756,7 +1756,7 @@ Response format: Just the number (e.g., 0.85)
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 19),
                 "description": "RESTAURANT DINING",
-                "amount": -67.45,
+                "amount": 67.45,
                 "balance": 3541.23,
                 "transaction_type": "debit",
                 "reference_number": "901234",
@@ -1768,7 +1768,7 @@ Response format: Just the number (e.g., 0.85)
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 20),
                 "description": "NETFLIX SUBSCRIPTION",
-                "amount": -15.99,
+                "amount": 15.99,
                 "balance": 3525.24,
                 "transaction_type": "debit",
                 "reference_number": "567890",
@@ -1780,7 +1780,7 @@ Response format: Just the number (e.g., 0.85)
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 21),
                 "description": "PHARMACY PURCHASE",
-                "amount": -23.50,
+                "amount": 23.50,
                 "balance": 3501.74,
                 "transaction_type": "debit",
                 "reference_number": "234567",
@@ -1792,7 +1792,7 @@ Response format: Just the number (e.g., 0.85)
                 "upload_batch_id": batch_id,
                 "date": datetime(2024, 1, 22),
                 "description": "UTILITY BILL PAYMENT",
-                "amount": -125.00,
+                "amount": 125.00,
                 "balance": 3376.74,
                 "transaction_type": "debit",
                 "reference_number": "890123",
