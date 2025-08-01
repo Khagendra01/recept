@@ -15,12 +15,21 @@ if ! command -v rustc &> /dev/null; then
     source $CARGO_HOME/env
 fi
 
-# Install Python dependencies with pre-compiled wheels when possible
-pip install --upgrade pip
-pip install --upgrade setuptools wheel
+# Upgrade pip and install build tools
+python -m pip install --upgrade pip
+python -m pip install --upgrade setuptools wheel
 
-# Try to install with pre-compiled wheels first
-pip install --only-binary=all -r requirements.txt || {
-    echo "Some packages need compilation, trying with Rust..."
-    pip install -r requirements.txt
-} 
+# Install dependencies with fallback strategy
+echo "Installing Python dependencies..."
+pip install -r requirements.txt
+
+# If the above fails, try with pre-compiled wheels
+if [ $? -ne 0 ]; then
+    echo "Retrying with pre-compiled wheels..."
+    pip install --only-binary=all -r requirements.txt || {
+        echo "Some packages need compilation, trying with Rust..."
+        pip install -r requirements.txt
+    }
+fi
+
+echo "Build completed successfully!" 
