@@ -43,12 +43,12 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Receipt Processing API"
     
     # Backend URL Configuration
-    BACKEND_URL: str = os.getenv("BACKEND_URL", "http://localhost:8005")
+    BACKEND_URL: str = os.getenv("BACKEND_URL", "https://recept-lhab.onrender.com")
     BACKEND_HOST: str = "0.0.0.0"
     BACKEND_PORT: int = 8005
     
     # Frontend URL
-    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://tubular-crisp-307c87.netlify.app")
     
     # Debug mode
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
