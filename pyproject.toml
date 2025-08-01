@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "receipt-processing-backend"
 version = "1.0.0"
 description = "Receipt Processing Backend API"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi==0.104.1",
     "uvicorn[standard]==0.24.0",
