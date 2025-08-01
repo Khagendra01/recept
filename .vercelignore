@@ -1,0 +1,86 @@
+# Virtual environment
+venv/
+env/
+.venv/
+venv_backup/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Python packages (Vercel will install these)
+*.pyd
+*.so
+*.dll
+*.dylib
+
+# Large packages that should be installed by Vercel
+pandas/
+numpy/
+PIL/
+Pillow/
+pdfplumber/
+PyPDF2/
+openai/
+google/
+google_auth/
+google_auth_oauthlib/
+google_auth_httplib2/
+googleapiclient/
+fastapi/
+uvicorn/
+sqlalchemy/
+alembic/
+pydantic/
+python-multipart/
+python-jose/
+passlib/
+bcrypt/
+aiofiles/
+python-magic/
+requests/
+jinja2/
+fastapi-users/
+httpx/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads directory
+uploads/
+
+# Environment files
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Node modules (if any)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Vercel
+.vercel/ 

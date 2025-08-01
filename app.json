@@ -1,0 +1,48 @@
+{
+  "name": "Receipt Processing API",
+  "description": "AI-powered receipt processing and bank statement comparison API",
+  "keywords": ["fastapi", "python", "ai", "receipt-processing", "gmail", "openai"],
+  "website": "https://github.com/your-repo/receipt-processing",
+  "repository": "https://github.com/your-repo/receipt-processing",
+  "env": {
+    "GOOGLE_CLIENT_ID": {
+      "description": "Google OAuth2 Client ID",
+      "required": true
+    },
+    "GOOGLE_CLIENT_SECRET": {
+      "description": "Google OAuth2 Client Secret",
+      "required": true
+    },
+    "OPENAI_API_KEY": {
+      "description": "OpenAI API Key for receipt processing",
+      "required": true
+    },
+    "SECRET_KEY": {
+      "description": "Secret key for JWT tokens",
+      "generator": "secret"
+    },
+    "DATABASE_URL": {
+      "description": "Database URL (will use PostgreSQL on Heroku)",
+      "required": false
+    },
+    "FRONTEND_URL": {
+      "description": "Frontend URL for CORS",
+      "value": "https://hupvy261q5mv.space.minimax.io"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [
+    "heroku-postgresql:mini",
+    "heroku-redis:mini"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
