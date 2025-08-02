@@ -116,6 +116,11 @@ class OpenAIService:
     async def _extract_receipt_data(self, pdf_text: str) -> Optional[ReceiptData]:
         """Use OpenAI to extract structured data from receipt text"""
         try:
+            # Check if OpenAI API key is configured
+            if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "":
+                print("OpenAI API key is not configured")
+                return None
+            
             # Prepare the prompt for structured extraction
             prompt = self._create_extraction_prompt(pdf_text)
             
@@ -162,6 +167,9 @@ class OpenAIService:
                 
         except Exception as e:
             print(f"OpenAI API error: {e}")
+            # Check for specific API key errors
+            if "api_key" in str(e).lower() or "authentication" in str(e).lower():
+                print("OpenAI API key is invalid or missing. Please check your OPENAI_API_KEY environment variable.")
             return None
     
     def _create_extraction_prompt(self, pdf_text: str) -> str:

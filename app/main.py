@@ -71,9 +71,10 @@ def root():
 
 @app.get("/health")
 def health_check():
+    import datetime
     return {
         "status": "healthy",
-        "timestamp": "2025-08-01T08:24:51Z"
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z"
     }
 
 # Global exception handler

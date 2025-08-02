@@ -307,6 +307,11 @@ class BankTransactionService:
     async def _parse_csv_with_openai(self, csv_text: str) -> List[Dict[str, Any]]:
         """Parse CSV file using OpenAI API to extract structured transaction data"""
         try:
+            # Check if OpenAI API key is configured
+            if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "":
+                print("OpenAI API key is not configured")
+                return []
+            
             # Create prompt for OpenAI to parse the entire CSV
             prompt = self._create_csv_parsing_prompt(csv_text)
             
@@ -368,6 +373,9 @@ class BankTransactionService:
                 
         except Exception as e:
             print(f"OpenAI API error: {e}")
+            # Check for specific API key errors
+            if "api_key" in str(e).lower() or "authentication" in str(e).lower():
+                print("OpenAI API key is invalid or missing. Please check your OPENAI_API_KEY environment variable.")
             return []
     
     def _create_csv_parsing_prompt(self, csv_text: str) -> str:
@@ -1178,6 +1186,11 @@ Return only valid JSON.
         if len(transactions) < 2:
             return {"are_duplicates": False, "confidence": 0.0, "reasoning": "Not enough transactions"}
         
+        # Check if OpenAI API key is configured
+        if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "":
+            print("OpenAI API key is not configured for duplicate analysis")
+            return self._fallback_duplicate_analysis(transactions)
+        
         # Prepare transaction data for AI analysis
         tx_data = []
         for tx in transactions:
@@ -1211,6 +1224,10 @@ Return only valid JSON.
             return analysis
             
         except Exception as e:
+            print(f"AI duplicate analysis error: {e}")
+            # Check for specific API key errors
+            if "api_key" in str(e).lower() or "authentication" in str(e).lower():
+                print("OpenAI API key is invalid or missing for duplicate analysis.")
             # Fallback to basic analysis if AI fails
             return self._fallback_duplicate_analysis(transactions)
     
@@ -1501,6 +1518,11 @@ Consider:
     def _ai_verify_match(self, ledger_tx: Transaction, bank_tx: BankTransaction) -> float:
         """Use AI to verify if two transactions are a match"""
         try:
+            # Check if OpenAI API key is configured
+            if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "":
+                print("OpenAI API key is not configured for AI verification")
+                return 0.5  # Default confidence
+            
             prompt = f"""
 Analyze if these two transactions are the same transaction:
 
@@ -1551,114 +1573,102 @@ Response format: Just the number (e.g., 0.85)
             except ValueError:
                 return 0.5  # Default if parsing fails
                 
-        except Exception:
+        except Exception as e:
+            print(f"AI verification error: {e}")
+            # Check for specific API key errors
+            if "api_key" in str(e).lower() or "authentication" in str(e).lower():
+                print("OpenAI API key is invalid or missing for AI verification.")
             return 0.5  # Default if AI fails
 
     def generate_sample_bank_transactions(self, user_id: int) -> CSVUploadResponse:
-        """Generate sample bank transactions for demonstration"""
+        """Generate sample ledger transactions for dashboard demonstration"""
         batch_id = str(uuid.uuid4())
         
-        # Clear existing bank transactions for this user to avoid duplication
-        self.db.query(BankTransaction).filter(BankTransaction.user_id == user_id).delete()
+        # Clear existing sample data for this user to avoid duplication
+        self.db.query(Transaction).filter(Transaction.user_id == user_id).delete()
         self.db.commit()
         
-        # Sample bank transactions data (BankTransaction model)
-        sample_bank_transactions = [
+        # Sample ledger transactions data (Transaction model for dashboard)
+        sample_ledger_transactions = [
             {
                 "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 15),
-                "description": "SAFEWAY GROCERY PURCHASE",
+                "merchant_name": "SAFEWAY",
                 "amount": 45.67,
-                "balance": 1234.56,
-                "transaction_type": "debit",
-                "reference_number": "123456",
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 15),
                 "category": "food",
-                "merchant_name": "SAFEWAY"
+                "description": "Grocery purchase at Safeway",
+                "is_processed": True
             },
             {
                 "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 16),
-                "description": "SALARY DEPOSIT",
-                "amount": 2500.00,
-                "balance": 3734.56,
-                "transaction_type": "credit",
-                "reference_number": None,
-                "category": "income",
-                "merchant_name": "EMPLOYER CORP"
-            },
-            {
-                "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 17),
-                "description": "SHELL GAS STATION",
+                "merchant_name": "SHELL",
                 "amount": 35.89,
-                "balance": 3698.67,
-                "transaction_type": "debit",
-                "reference_number": "789012",
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 17),
                 "category": "gas",
-                "merchant_name": "SHELL"
+                "description": "Gas station purchase",
+                "is_processed": True
             },
             {
                 "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 18),
-                "description": "AMAZON.COM ONLINE PURCHASE",
+                "merchant_name": "AMAZON",
                 "amount": 89.99,
-                "balance": 3608.68,
-                "transaction_type": "debit",
-                "reference_number": "345678",
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 18),
                 "category": "shopping",
-                "merchant_name": "AMAZON"
+                "description": "Online purchase from Amazon",
+                "is_processed": True
             },
             {
                 "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 19),
-                "description": "CHIPOTLE RESTAURANT",
+                "merchant_name": "CHIPOTLE",
                 "amount": 67.45,
-                "balance": 3541.23,
-                "transaction_type": "debit",
-                "reference_number": "901234",
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 19),
                 "category": "food",
-                "merchant_name": "CHIPOTLE"
+                "description": "Restaurant dining at Chipotle",
+                "is_processed": True
             },
             {
                 "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 20),
-                "description": "NETFLIX SUBSCRIPTION",
+                "merchant_name": "NETFLIX",
                 "amount": 15.99,
-                "balance": 3525.24,
-                "transaction_type": "debit",
-                "reference_number": "567890",
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 20),
                 "category": "entertainment",
-                "merchant_name": "NETFLIX"
+                "description": "Netflix subscription payment",
+                "is_processed": True
             },
             {
                 "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 21),
-                "description": "CVS PHARMACY PURCHASE",
+                "merchant_name": "CVS",
                 "amount": 23.50,
-                "balance": 3501.74,
-                "transaction_type": "debit",
-                "reference_number": "234567",
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 21),
                 "category": "healthcare",
-                "merchant_name": "CVS"
+                "description": "Pharmacy purchase",
+                "is_processed": True
             },
             {
                 "user_id": user_id,
-                "upload_batch_id": batch_id,
-                "date": datetime(2024, 1, 22),
-                "description": "ELECTRIC COMPANY BILL PAYMENT",
+                "merchant_name": "ELECTRIC COMPANY",
                 "amount": 125.00,
-                "balance": 3376.74,
-                "transaction_type": "debit",
-                "reference_number": "890123",
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 22),
                 "category": "utilities",
-                "merchant_name": "ELECTRIC COMPANY"
+                "description": "Utility bill payment",
+                "is_processed": True
+            },
+            {
+                "user_id": user_id,
+                "merchant_name": "STARBUCKS",
+                "amount": 8.75,
+                "currency": "USD",
+                "transaction_date": datetime(2024, 1, 23),
+                "category": "food",
+                "description": "Coffee purchase",
+                "is_processed": True
             }
         ]
         
@@ -1666,23 +1676,23 @@ Response format: Just the number (e.g., 0.85)
         failed_imports = 0
         errors = []
         
-        # Create bank transactions from sample data
-        for transaction_data in sample_bank_transactions:
+        # Create ledger transactions from sample data (for dashboard)
+        for transaction_data in sample_ledger_transactions:
             try:
-                # Create bank transaction (BankTransaction model)
-                bank_tx = BankTransaction(**transaction_data)
-                self.db.add(bank_tx)
+                # Create ledger transaction (Transaction model)
+                ledger_tx = Transaction(**transaction_data)
+                self.db.add(ledger_tx)
                 successful_imports += 1
                 
             except Exception as e:
                 failed_imports += 1
-                errors.append(f"Sample bank transaction error: {str(e)}")
+                errors.append(f"Sample ledger transaction error: {str(e)}")
         
         self.db.commit()
         
         return CSVUploadResponse(
             batch_id=batch_id,
-            total_transactions=len(sample_bank_transactions),
+            total_transactions=len(sample_ledger_transactions),
             successful_imports=successful_imports,
             failed_imports=failed_imports,
             errors=errors[:10]  # Limit to first 10 errors

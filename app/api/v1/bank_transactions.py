@@ -146,7 +146,7 @@ def generate_sample_ledger_data(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> CSVUploadResponse:
-    """Generate sample ledger transactions for demonstration"""
+    """Generate sample ledger transactions for dashboard demonstration"""
     bank_service = BankTransactionService(db)
     
     try:
